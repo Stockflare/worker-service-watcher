@@ -94,7 +94,7 @@ var executeJob = function(db_job) {
             Value: count
           }
         ],
-        Namespace: 'stockflare'
+        Namespace: db_job.service_watcher.Namespace
       };
       cloudwatch.putMetricData(params, function(err, data){
         console.log(err);
