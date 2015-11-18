@@ -16,27 +16,10 @@ var cloudwatch = new aws.CloudWatch({ region: region });
 var jobs = {};
 
 
-var keysToLowerCase = function keysToLowerCase(obj) {
-    if (!typeof(obj) === "object" || typeof(obj) === "string" || typeof(obj) === "number" || typeof(obj) === "boolean") {
-        return obj;
-    }
-    var keys = Object.keys(obj);
-    var n = keys.length;
-    var lowKey;
-    while (n--) {
-        var key = keys[n];
-        if (key === (lowKey = key.toLowerCase()))
-            continue;
-        obj[lowKey] = keysToLowerCase(obj[key]);
-        delete obj[key];
-    }
-    return (obj);
-};
-
+// Get all services watcher details from DynamoDB
 var getAllDBJobs = function(fn) {
   result = dynamo.scan({
-    TableName: table,
-    Limit: 1000
+    TableName: table
   }, function(err, data){
     console.log('getAllDBJobs','err', 'data');
     var return_data = [];
@@ -63,6 +46,7 @@ var getAllDBJobs = function(fn) {
   });
 };
 
+// Send the required metric
 var executeJob = function(db_job) {
   console.log('Running Job:', db_job.id);
   path = url.parse(db_job.service_watcher.URL);
@@ -104,7 +88,7 @@ var executeJob = function(db_job) {
   }).end();
 };
 
-
+// Check for service watchers every 10 seconds
 setInterval(function() {
   console.log('Run all watc watchers');
   getAllDBJobs(function(err,data){
